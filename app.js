@@ -55,36 +55,41 @@ const tracedFunction = async (req, fn, ...args) => {
     span.addEvent("error", { error: error.message });
     throw error;
   } finally {
-    span.end();
+    await span.end();
   }
 };
 
-const sleep = (ms) => {
+const sleep = (req, span, ms) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
 const functionA = async (req, span, arg1, arg2) => {
-  await sleep(300);
+  await new Promise((resolve) => setTimeout(resolve, 250));
+  await tracedFunction(req, sleep, 300);
   console.log("Function A executed with arguments:", arg1, arg2);
 };
 
 const functionB = async (req, span, arg1) => {
-  await sleep(500);
+  await new Promise((resolve) => setTimeout(resolve, 250));
+  await tracedFunction(req, sleep, 500);
   console.log("Function B executed with argument:", arg1);
 };
 
 const functionC = async (req, span) => {
-  await sleep(700);
+  await new Promise((resolve) => setTimeout(resolve, 250));
+  await tracedFunction(req, sleep, 700);
   console.log("Function C executed");
 };
 
 const functionD = async (req, span, arg1, arg2, arg3) => {
-  await sleep(200);
+  await new Promise((resolve) => setTimeout(resolve, 250));
+  await tracedFunction(req, sleep, 200);
   console.log("Function D executed with arguments:", arg1, arg2, arg3);
 };
 
 const functionE = async (req, span) => {
-  await sleep(400);
+  await new Promise((resolve) => setTimeout(resolve, 250));
+  await tracedFunction(req, sleep, 400);
   console.log("Function E executed");
 };
 
