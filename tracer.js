@@ -2,6 +2,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 const os = require("os");
 const fs = require("fs");
+const { trace } = require("@opentelemetry/api");
 const { NodeSDK } = require("@opentelemetry/sdk-node");
 const {
   getNodeAutoInstrumentations,
@@ -45,10 +46,12 @@ const start = (serviceName) => {
       }),
     ],
   });
+  const version = "0.1.0";
+  const tracer = trace.getTracer(serviceName, version);
 
   sdk.start();
-  sendServerUsageToPrometheus(meter);
-  return meter;
+  // sendServerUsageToPrometheus(meter);
+  return { meter, tracer };
 };
 
 const sendServerUsageToPrometheus = (meter) => {
@@ -66,8 +69,6 @@ const sendServerUsageToPrometheus = (meter) => {
       cpu.add(cpuUsage, { description: "CPU usage" });
       memory.add(memoryUsage, { description: "Memory usage" });
       disk.add(diskUsage, { description: "Disk usage" });
-
-      console.log("Metrics recorded:", { cpuUsage, memoryUsage, diskUsage });
     } catch (error) {
       console.error("Error recording metrics:", error);
     }
